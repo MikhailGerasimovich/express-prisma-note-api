@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Note {
+  id          Int      @id @unique @default(autoincrement())
+  title       String
+  description String
+  updatedAt   DateTime @updatedAt
+  location    String
+
+  tags NotesToTags[]
+
+  color   Color @relation(fields: [colorId], references: [id])
+  colorId Int
+}
+
+model Tag {
+  id    Int    @id @unique @default(autoincrement())
+  title String @unique
+
+  notes NotesToTags[]
+}
+
+model NotesToTags {
+  id Int @id @unique @default(autoincrement())
+
+  notes  Note @relation(fields: [noteId], references: [id])
+  noteId Int
+
+  tags  Tag @relation(fields: [tagId], references: [id])
+  tagId Int
+}
+
+model Color {
+  id    Int    @id @unique @default(autoincrement())
+  title String @unique
+  notes Note[]
+}
