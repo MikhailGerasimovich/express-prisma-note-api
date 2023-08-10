@@ -44,7 +44,29 @@ class NoteService {
     return createdNote;
   }
 
-  async updateById(id, newNote) {}
+  async updateById(id, newNoteData) {
+    const existingNote = await noteRepository.getById(id);
+
+    if (!existingNote) {
+      throw new NotFoundException(`note with id=${id} not found`);
+    }
+
+    const color = newNoteData.color ? await this._createColorIfNotExist(newNoteData.color) : undefined;
+    const tags = newNoteData.tags ? await this._createTagsIfNotExist(newNoteData.tags) : undefined;
+
+    const newNote = {
+      title: newNoteData.title || existingNote.title,
+      description: newNoteData.description || existingNote.description,
+      location: newNoteData.location || existingNote.location,
+      updatedAt: new Date(),
+      tags: tags,
+      color: color,
+    };
+
+    const updatedNote = await noteRepository.updateById(id, newNote);
+
+    return updatedNote;
+  }
 
   async deleteById(id) {
     if (!id) {

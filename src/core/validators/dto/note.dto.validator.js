@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { BadRequestException } from '../../common/exceptions/bad-request.exception.js';
+import { BadRequestException } from '../../../common/exceptions/bad-request.exception.js';
 
 export function validateCreateNoteDto(noteData) {
   const schema = Joi.object({

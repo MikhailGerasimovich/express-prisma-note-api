@@ -1,17 +1,24 @@
 import { defaultPagination } from '../../common/pagination/default.pagination.js';
 import { offset } from '../../common/pagination/offset.pagination.js';
 import { prisma } from '../../database/prisma.client.js';
+import { colorFiltration } from '../filters/color.filter.js';
 
 class ColorRepository {
   async getAll(options) {
     const pagination = options?.pagination;
-    const page = parseInt(pagination?.page) ?? defaultPagination.page;
-    const size = parseInt(pagination?.size) ?? defaultPagination.size;
+    const page = Number(pagination?.page) || defaultPagination.page;
+    const size = Number(pagination?.size) || defaultPagination.size;
+
+    const filterOptions = options?.filterOptions;
+    const filters = colorFiltration(filterOptions);
+
     const records = await prisma.color.findMany({
+      where: { ...filters },
+
       skip: offset(page, size),
       take: size,
     });
-    const totalRecordsNumber = await prisma.color.count();
+    const totalRecordsNumber = await prisma.color.count({ where: { ...filters } });
 
     return { records, totalRecordsNumber };
   }

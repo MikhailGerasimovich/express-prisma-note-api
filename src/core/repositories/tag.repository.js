@@ -1,17 +1,24 @@
 import { prisma } from '../../database/prisma.client.js';
 import { offset } from '../../common/pagination/offset.pagination.js';
 import { defaultPagination } from '../../common/pagination/default.pagination.js';
+import { tagFiltration } from '../filters/tag.filter.js';
 
 class TagRepository {
   async getAll(options) {
     const pagination = options?.pagination;
-    const page = parseInt(pagination?.page) ?? defaultPagination.page;
-    const size = parseInt(pagination?.size) ?? defaultPagination.size;
+    const page = Number(pagination?.page) || defaultPagination.page;
+    const size = Number(pagination?.size) || defaultPagination.size;
+
+    const filterOptions = options?.filterOptions;
+    const filters = tagFiltration(filterOptions);
+
     const records = await prisma.tag.findMany({
+      where: { ...filters },
+
       skip: offset(page, size),
       take: size,
     });
-    const totalRecordsNumber = await prisma.tag.count();
+    const totalRecordsNumber = await prisma.tag.count({ where: { ...filters } });
 
     return { records, totalRecordsNumber };
   }
